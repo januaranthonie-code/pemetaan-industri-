@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web GIS Industri Madidir</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+    }
+
+    .header {
+      background: #0b5d2a;
+      color: white;
+      text-align: center;
+      padding: 18px;
+      font-size: 23px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    #map {
+      width: 100%;
+      height: calc(100vh - 64px);
+    }
+
+    .legend {
+      background: white;
+      padding: 12px 14px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      background: #e67e22;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    🏭 WEB GIS PEMETAAN INDUSTRI MADIDIR
+  </div>
+
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    // Titik tengah wilayah Madidir / Bitung
+    var map = L.map('map').setView([1.443, 125.160], 13);
+
+    // Basemap OpenStreetMap
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 19
+    }).addTo(map);
+
+    // Icon marker industri
+    var industriIcon = new L.Icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    // Ambil data GeoJSON
+    fetch('geo.json')
+      .then(response => response.json())
+      .then(data => {
+        var layer = L.geoJSON(data, {
+          pointToLayer: function(feature, latlng) {
+            return L.marker(latlng, { icon: industriIcon });
+          },
+          onEachFeature: function(feature, layer) {
+            layer.bindPopup(`
+              <b>${feature.properties.nama_perusahaan}</b><br>
+              Kategori: ${feature.properties.kategori}<br>
+              Latitude: ${feature.geometry.coordinates[1]}<br>
+              Longitude: ${feature.geometry.coordinates[0]}
+            `);
+          }
+        }).addTo(map);
+
+        map.fitBounds(layer.getBounds());
+      })
+      .catch(error => {
+        console.error('GeoJSON gagal dimuat:', error);
+        alert('File geo.json tidak ditemukan atau gagal dimuat.');
+      });
+
+    // Legend
+    var legend = L.control({ position: 'bottomleft' });
+
+    legend.onAdd = function() {
+      var div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = `
+        <b>Keterangan</b><br>
+        <span class="dot"></span> Lokasi Industri
+      `;
+      return div;
+    };
+
+    legend.addTo(map);
+  </script>
+
+</body>
+</html>

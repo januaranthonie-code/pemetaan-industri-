@@ -1,0 +1,156 @@
+{
+  "type": "FeatureCollection",
+  "name": "Pemetaan_Industri_Madidir",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1,
+        "nama_perusahaan": "PT. Agro Makmur Raya Madidir Unet",
+        "kategori": "Industri"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          125.166288064053,
+          1.44321939021317
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 2,
+        "nama_perusahaan": "PT. Multi Nabati Sulawesi",
+        "kategori": "Industri"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          125.162850152373,
+          1.44234980483499
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 3,
+        "nama_perusahaan": "PT. Deho Canning Company",
+        "kategori": "Industri"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          125.155993141014,
+          1.44055959502238
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 4,
+        "nama_perusahaan": "PT. RD Pacific International",
+        "kategori": "Industri"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          125.154958346842,
+          1.44064954777228
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 5,
+        "nama_perusahaan": "PT. Sinar Pure Foods International",
+        "kategori": "Industri"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          125.157187290614,
+          1.44181780135578
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 6,
+        "nama_perusahaan": "PT Mitra Distribusi Mandiri (Depo Bitung)",
+        "kategori": "Industri"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          125.128810256269,
+          1.44779405312675
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 7,
+        "nama_perusahaan": "PT Indofood ICBP Sukses Makmur Tbk",
+        "kategori": "Industri"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          125.175139967468,
+          1.44225772538752
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 8,
+        "nama_perusahaan": "PT. Sari Cakalang",
+        "kategori": "Industri"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          125.17427325108,
+          1.4399681128204
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 9,
+        "nama_perusahaan": "PT. STEMAR JAYA",
+        "kategori": "Industri"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          125.178692084638,
+          1.44789855270115
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 10,
+        "nama_perusahaan": "PT. Samudra Mandiri Sentosa",
+        "kategori": "Industri"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          125.151613300275,
+          1.44081358318545
+        ]
+      }
+    }
+  ]
+}
