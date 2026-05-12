@@ -83,8 +83,8 @@
     });
 
     // Memuat data GeoJSON
-    // Pastikan nama file sesuai: 'Pemetaan_Industri_Madidir.geojson'
-    fetch('Pemetaan_Industri_Madidir.geojson')
+    // File: industri_madidir (1).geojson
+    fetch('industri_madidir%20(1).geojson')
       .then(response => {
         if (!response.ok) {
           throw new Error('Gagal mengambil file GeoJSON');
@@ -97,12 +97,13 @@
             return L.marker(latlng, { icon: industriIcon });
           },
           onEachFeature: function(feature, layer) {
-            // Popup yang disesuaikan dengan properti file geojson terbaru
+            // Popup yang disesuaikan dengan properti file geojson
             var popupContent = `
-              <div style="min-width: 150px;">
-                <strong style="color: #0b5d2a;">${feature.properties.nama_perusahaan}</strong><br>
+              <div style="min-width: 200px;">
+                <strong style="color: #0b5d2a;">${feature.properties.nama}</strong><br>
                 <hr style="margin: 5px 0;">
-                <small>Koordinat:</small><br>
+                <small><strong>ID:</strong></small> ${feature.properties.id}<br>
+                <small><strong>Koordinat:</strong></small><br>
                 ${feature.geometry.coordinates[1].toFixed(6)}, ${feature.geometry.coordinates[0].toFixed(6)}
               </div>
             `;
@@ -115,4 +116,8 @@
       })
       .catch(error => {
         console.error('Error:', error);
-        alert('Data industri tidak dapat dimuat. Pastikan file Pem
+        alert('Data industri tidak dapat dimuat. Pastikan file industri_madidir (1).geojson tersedia di direktori yang sama.');
+      });
+  </script>
+</body>
+</html>
