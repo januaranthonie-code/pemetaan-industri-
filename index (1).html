@@ -10,7 +10,7 @@
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f4f6f8;
     }
 
@@ -18,24 +18,26 @@
       background: #0b5d2a;
       color: white;
       text-align: center;
-      padding: 18px;
-      font-size: 23px;
+      padding: 15px;
+      font-size: 20px;
       font-weight: bold;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 1000;
     }
 
     #map {
       width: 100%;
-      height: calc(100vh - 64px);
+      height: calc(100vh - 54px);
     }
 
     .legend {
       background: white;
       padding: 12px 14px;
-      border-radius: 10px;
+      border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
       line-height: 1.5;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .dot {
@@ -44,7 +46,8 @@
       height: 12px;
       background: #e67e22;
       border-radius: 50%;
-      margin-right: 6px;
+      margin-right: 8px;
+      border: 1px solid #fff;
     }
   </style>
 </head>
@@ -60,16 +63,16 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    // Titik tengah wilayah Madidir / Bitung
-    var map = L.map('map').setView([1.443, 125.160], 13);
+    // Inisialisasi Map
+    var map = L.map('map').setView([1.443, 125.160], 14);
 
-    // Basemap OpenStreetMap
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
+    // Basemap: Menggunakan OpenStreetMap Berwarna
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
       maxZoom: 19
     }).addTo(map);
 
-    // Icon marker industri
+    // Icon marker industri warna Oranye
     var industriIcon = new L.Icon({
       iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png',
       shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
@@ -79,45 +82,37 @@
       shadowSize: [41, 41]
     });
 
-    // Ambil data GeoJSON
-    fetch('geo.json')
-      .then(response => response.json())
+    // Memuat data GeoJSON
+    // Pastikan nama file sesuai: 'Pemetaan_Industri_Madidir.geojson'
+    fetch('Pemetaan_Industri_Madidir.geojson')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Gagal mengambil file GeoJSON');
+        }
+        return response.json();
+      })
       .then(data => {
-        var layer = L.geoJSON(data, {
+        var geojsonLayer = L.geoJSON(data, {
           pointToLayer: function(feature, latlng) {
             return L.marker(latlng, { icon: industriIcon });
           },
           onEachFeature: function(feature, layer) {
-            layer.bindPopup(`
-              <b>${feature.properties.nama_perusahaan}</b><br>
-              Kategori: ${feature.properties.kategori}<br>
-              Latitude: ${feature.geometry.coordinates[1]}<br>
-              Longitude: ${feature.geometry.coordinates[0]}
-            `);
+            // Popup yang disesuaikan dengan properti file geojson terbaru
+            var popupContent = `
+              <div style="min-width: 150px;">
+                <strong style="color: #0b5d2a;">${feature.properties.nama_perusahaan}</strong><br>
+                <hr style="margin: 5px 0;">
+                <small>Koordinat:</small><br>
+                ${feature.geometry.coordinates[1].toFixed(6)}, ${feature.geometry.coordinates[0].toFixed(6)}
+              </div>
+            `;
+            layer.bindPopup(popupContent);
           }
         }).addTo(map);
 
-        map.fitBounds(layer.getBounds());
+        // Zoom otomatis ke area yang memiliki marker
+        map.fitBounds(geojsonLayer.getBounds(), { padding: [50, 50] });
       })
       .catch(error => {
-        console.error('GeoJSON gagal dimuat:', error);
-        alert('File geo.json tidak ditemukan atau gagal dimuat.');
-      });
-
-    // Legend
-    var legend = L.control({ position: 'bottomleft' });
-
-    legend.onAdd = function() {
-      var div = L.DomUtil.create('div', 'legend');
-      div.innerHTML = `
-        <b>Keterangan</b><br>
-        <span class="dot"></span> Lokasi Industri
-      `;
-      return div;
-    };
-
-    legend.addTo(map);
-  </script>
-
-</body>
-</html>
+        console.error('Error:', error);
+        alert('Data industri tidak dapat dimuat. Pastikan file Pem
