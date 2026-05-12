@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pemetaan Industri Madidir – SIGMAR</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+      border-bottom: 2px solid #2563eb;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header .logo {
+      width: 48px;
+      height: 48px;
+      background: #2563eb;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      line-height: 1.2;
+    }
+
+    header p {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    .badge {
+      margin-left: auto;
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      height: calc(100vh - 82px);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 300px;
+      min-width: 260px;
+      background: #1e293b;
+      border-right: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 14px 16px;
+      background: #0f172a;
+      border-bottom: 1px solid #334155;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .sidebar-header span {
+      float: right;
+      background: #2563eb;
+      color: #fff;
+      border-radius: 10px;
+      padding: 1px 8px;
+      font-size: 0.72rem;
+    }
+
+    .search-box {
+      padding: 12px;
+      border-bottom: 1px solid #334155;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 8px 12px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus { border-color: #2563eb; }
+    .search-box input::placeholder { color: #475569; }
+
+    .industry-list {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .industry-list::-webkit-scrollbar { width: 5px; }
+    .industry-list::-webkit-scrollbar-track { background: #1e293b; }
+    .industry-list::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+    .industry-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #1e293b;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .industry-item:hover, .industry-item.active {
+      background: #1e3a5f;
+    }
+
+    .industry-item .num {
+      width: 24px;
+      height: 24px;
+      background: #2563eb;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .industry-item .info { flex: 1; }
+
+    .industry-item .name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      line-height: 1.3;
+    }
+
+    .industry-item .coords {
+      font-size: 0.7rem;
+      color: #64748b;
+      margin-top: 3px;
+    }
+
+    /* Map */
+    #map {
+      flex: 1;
+      z-index: 1;
+    }
+
+    /* Leaflet popup override */
+    .leaflet-popup-content-wrapper {
+      background: #1e293b;
+      border: 1px solid #2563eb;
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    .leaflet-popup-tip { background: #2563eb; }
+
+    .popup-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #f1f5f9;
+      margin-bottom: 6px;
+    }
+
+    .popup-row {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin: 2px 0;
+    }
+
+    .popup-row span { color: #60a5fa; font-weight: 600; }
+
+    /* Stats bar */
+    .stats-bar {
+      background: #0f172a;
+      border-top: 1px solid #334155;
+      padding: 10px 16px;
+      display: flex;
+      gap: 24px;
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .stats-bar b { color: #60a5fa; }
+
+    @media (max-width: 640px) {
+      .layout { flex-direction: column; height: auto; }
+      .sidebar { width: 100%; height: 240px; border-right: none; border-bottom: 1px solid #334155; }
+      #map { height: 55vh; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🏭</div>
+  <div>
+    <h1>Pemetaan Industri Kawasan Madidir</h1>
+    <p>Sistem Informasi Geospasial Industri – SIGMAR | Kota Bitung, Sulawesi Utara</p>
+  </div>
+  <div class="badge">SIGMAR</div>
+</header>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      Daftar Industri <span id="count">0</span>
+    </div>
+    <div class="search-box">
+      <input type="text" id="search" placeholder="Cari nama perusahaan..." />
+    </div>
+    <div class="industry-list" id="list"></div>
+    <div class="stats-bar">
+      Total: <b id="total">0</b> industri &nbsp;|&nbsp; Kawasan: <b>Madidir</b>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div id="map"></div>
+</div>
+
+<script>
+  // ─── Embed GeoJSON inline so it works with GitHub Pages (no CORS issue) ───
+  const geojson = {
+    "type": "FeatureCollection",
+    "name": "Pemetaan Industri Madidir SIGMAR",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [125.166288064053, 1.44321939021317] },
+        "properties": { "id": 1, "nama": "PT. Agro Makmur Raya Madidir Unet", "latitude": 1.44321939021317, "longitude": 125.166288064053 }
+      },
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [125.162850152373, 1.44234980483499] },
+        "properties": { "id": 2, "nama": "PT. Multi Nabati Sulawesi", "latitude": 1.44234980483499, "longitude": 125.162850152373 }
+      },
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [125.155993141014, 1.44055959502238] },
+        "properties": { "id": 3, "nama": "PT. Deho Canning Company", "latitude": 1.44055959502238, "longitude": 125.155993141014 }
+      },
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [125.154958346842, 1.44064954777228] },
+        "properties": { "id": 4, "nama": "PT. RD Pacific International", "latitude": 1.44064954777228, "longitude": 125.154958346842 }
+      },
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [125.157187290614, 1.44181780135578] },
+        "properties": { "id": 5, "nama": "PT. Sinar Pure Foods International", "latitude": 1.44181780135578, "longitude": 125.157187290614 }
+      },
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [125.128810256269, 1.44779405312675] },
+        "properties": { "id": 6, "nama": "PT Mitra Distribusi Mandiri (Depo Bitung)", "latitude": 1.44779405312675, "longitude": 125.128810256269 }
+      },
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [125.175139967468, 1.44225772538752] },
+        "properties": { "id": 7, "nama": "PT Indofood ICBP Sukses Makmur Tbk", "latitude": 1.44225772538752, "longitude": 125.175139967468 }
+      },
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [125.17427325108, 1.4399681128204] },
+        "properties": { "id": 8, "nama": "PT. Sari Cakalang", "latitude": 1.4399681128204, "longitude": 125.17427325108 }
+      },
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [125.178692084638, 1.44789855270115] },
+        "properties": { "id": 9, "nama": "PT. STEMAR JAYA", "latitude": 1.44789855270115, "longitude": 125.178692084638 }
+      },
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [125.151613300275, 1.44081358318545] },
+        "properties": { "id": 10, "nama": "PT. Samudra Mandiri Sentosa", "latitude": 1.44081358318545, "longitude": 125.151613300275 }
+      }
+    ]
+  };
+
+  // ─── Map init ───
+  const map = L.map('map', { zoomControl: true }).setView([1.4435, 125.157], 14);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  // Custom marker icon
+  function makeIcon(num) {
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:32px;height:32px;background:#2563eb;border:2px solid #fff;
+        border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+        display:flex;align-items:center;justify-content:center;
+        box-shadow:0 2px 8px rgba(0,0,0,0.4);
+      "><span style="transform:rotate(45deg);color:#fff;font-weight:700;font-size:12px;">${num}</span></div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -34]
+    });
+  }
+
+  // ─── Markers ───
+  const markers = [];
+  const listEl = document.getElementById('list');
+
+  geojson.features.forEach((feat, i) => {
+    const { nama, latitude, longitude, id } = feat.properties;
+    const [lng, lat] = feat.geometry.coordinates;
+
+    const marker = L.marker([lat, lng], { icon: makeIcon(id) })
+      .addTo(map)
+      .bindPopup(`
+        <div class="popup-title">${nama}</div>
+        <div class="popup-row">📍 Lat: <span>${latitude.toFixed(6)}</span></div>
+        <div class="popup-row">📍 Lng: <span>${longitude.toFixed(6)}</span></div>
+        <div class="popup-row">🏷️ No: <span>${id}</span></div>
+      `);
+
+    markers.push({ marker, nama, id });
+
+    // Sidebar item
+    const item = document.createElement('div');
+    item.className = 'industry-item';
+    item.dataset.id = i;
+    item.innerHTML = `
+      <div class="num">${id}</div>
+      <div class="info">
+        <div class="name">${nama}</div>
+        <div class="coords">${latitude.toFixed(6)}, ${longitude.toFixed(6)}</div>
+      </div>
+    `;
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.industry-item').forEach(el => el.classList.remove('active'));
+      item.classList.add('active');
+      map.setView([lat, lng], 17);
+      marker.openPopup();
+    });
+    listEl.appendChild(item);
+  });
+
+  document.getElementById('count').textContent = geojson.features.length;
+  document.getElementById('total').textContent = geojson.features.length;
+
+  // ─── Search ───
+  document.getElementById('search').addEventListener('input', function () {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.industry-item').forEach(item => {
+      const name = item.querySelector('.name').textContent.toLowerCase();
+      item.style.display = name.includes(q) ? '' : 'none';
+    });
+    const vis = [...document.querySelectorAll('.industry-item')].filter(el => el.style.display !== 'none').length;
+    document.getElementById('count').textContent = vis;
+  });
+</script>
+</body>
+</html>
